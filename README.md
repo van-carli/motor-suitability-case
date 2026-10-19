@@ -87,7 +87,7 @@ python main.py examples/aprovado.json
 python -m pytest -v
 ```
 
-A pasta `examples/` tem um arquivo para cada situação:
+A pasta `examples/` tem um arquivo de entrada para cada situação. Os arquivos contêm apenas os dados de entrada (perfil, carteira e ordem); o resultado é calculado pelo motor a cada execução. Para testar outros valores, basta criar um arquivo JSON no mesmo formato e passá-lo ao `main.py`.
 
 | Arquivo | Situação | Resultado |
 |---|---|---|
