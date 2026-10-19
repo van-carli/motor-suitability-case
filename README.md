@@ -22,7 +22,7 @@ A ordem recebe um de três status. Os limites são proporcionais ao score do cli
 | Status | Quando ocorre | Limite para score 2,5 | O que significa |
 |---|---|---|---|
 | Aprovado | Risco projetado até 110% do score | até 2,75 | A compra pode ser executada |
-| Alerta | Acima de 110% e até 130% do score | de 2,75 a 3,25 | A compra só segue se o cliente assinar um termo de ciência |
+| Alerta | Acima de 110% e até 130% do score | acima de 2,75 até 3,25 | A compra só segue se o cliente assinar um termo de ciência |
 | Rejeitado | Acima de 130% do score | acima de 3,25 | A compra é bloqueada |
 
 O limite de alerta (110%) vem do enunciado. O limite de rejeição (130%) não foi definido no enunciado e é uma premissa desta solução, explicada no [relatório do Case I](docs/case-report.md#premissas-adotadas). Os dois valores ficam em `suitability/config.py` e podem ser alterados sem mexer na lógica do motor.

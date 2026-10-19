@@ -61,13 +61,13 @@ Além disso, o registro deve guardar uma cópia dos dados usados na decisão: o 
 
 **3. Executar a ordem somente depois que o termo estiver salvo**
 
-Aceitar o termo e executar a ordem são duas etapas diferentes, e a ordem entre elas importa. Se a ordem fosse enviada primeiro e a gravação do termo falhasse (por uma queda de conexão, por exemplo), a Genial teria executado uma operação fora do perfil sem prova de que o cliente concordou. Por isso, o sistema primeiro grava o termo, confirma que a gravação deu certo e só então envia a ordem. Se a gravação falhar, a ordem não é enviada e o cliente é informado para tentar novamente.
+Aceitar o termo e executar a ordem são duas etapas diferentes, e a sequência entre elas importa. Se a ordem fosse enviada primeiro e a gravação do termo falhasse (por uma queda de conexão, por exemplo), a Genial teria executado uma operação fora do perfil sem prova de que o cliente concordou. Por isso, o sistema primeiro grava o termo, confirma que a gravação deu certo e só então envia a ordem. Se a gravação falhar, a ordem não é enviada e o cliente é informado para tentar novamente.
 
 O sistema também precisa evitar duplicidades. Se o cliente clicar duas vezes em "confirmar", ou se o app reenviar a solicitação depois de uma falha de rede, o sistema deve reconhecer que se trata da mesma ordem, usando um identificador único para cada uma, e não criar duas ordens nem dois termos.
 
 **4. Validar a ordem novamente antes de executá-la**
 
-Entre o momento em que o alerta aparece e o momento em que o cliente aceita o termo, podem se passar alguns minutos. Nesse intervalo, os preços mudam ou outra ordem do mesmo cliente pode ser executada, e o risco da carteira pode ter subido a ponto de a compra passar a ser rejeitada. Por isso, o motor deve ser executado mais uma vez logo antes do envio da ordem. Se o resultado continuar sendo Alerta, a compra segue com o termo assinado. Se passar a ser Rejeitado, a ordem é bloqueada e o cliente recebe a explicação.
+Entre o momento em que o alerta aparece e o momento em que o cliente aceita o termo, podem se passar alguns minutos. Nesse intervalo, os preços podem mudar ou outra ordem do mesmo cliente pode ser executada, e o risco da carteira pode ter subido a ponto de a compra passar a ser rejeitada. Por isso, o motor deve ser executado mais uma vez logo antes do envio da ordem. Se o resultado continuar sendo Alerta, a compra segue com o termo assinado. Se passar a ser Rejeitado, a ordem é bloqueada e o cliente recebe a explicação.
 
 Pelo mesmo motivo, cada termo deve valer apenas para a ordem em que foi aceito e por um tempo curto. Um termo aceito hoje não deve autorizar uma compra diferente na semana seguinte. A CVM exige a declaração antes da primeira operação em cada categoria de ativo; pedir um termo por ordem vai além dessa exigência, mas garante que cada operação tenha a sua própria evidência.
 
@@ -150,7 +150,7 @@ Essa combinação pode ser organizada como um escalonamento por severidade. Esca
 
 - **Quando a carteira entra na faixa de Alerta:** O risco passou da tolerância do perfil, mas ainda está na faixa intermediária. O cliente recebe uma notificação no app e um e-mail explicando o que mudou. Não há urgência, e a decisão de ajustar ou não a carteira é dele.
 
-- **Quando a carteira entra na faixa de Rejeitado:** O risco está bem acima do perfil, no nível em que uma nova compra seria bloqueada. Além do app e do e-mail, o assessor do cliente entra em contato para explicar a situação e discutir as opções. Para clientes sem assessor, esse contato pode ser feito por um canal de atendimento.
+- **Quando a carteira entra na faixa de Rejeitado:** O risco está bem acima do perfil, além do limite que o motor usa para rejeitar compras. Além do app e do e-mail, o assessor do cliente entra em contato para explicar a situação e discutir as opções. Para clientes sem assessor, esse contato pode ser feito por um canal de atendimento.
 
 - **Quando o Alerta persiste por muito tempo:** Se a carteira continua em Alerta por um período definido pela política da Genial e o cliente não reagiu aos avisos automáticos, é sinal de que eles não foram suficientes. Nesse caso, o contato passa a ser feito pelo assessor, como no nível anterior.
 

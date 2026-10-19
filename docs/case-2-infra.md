@@ -27,7 +27,7 @@ O banco de dados costuma ser o primeiro gargalo, porque é compartilhado por tod
 - **Índices nas consultas mais frequentes**, como a busca da carteira por cliente, para que a consulta continue rápida mesmo com mais dados.
 - **Limite de conexões simultâneas.** Com mais cópias da aplicação, o número de conexões abertas com o banco cresce, e o banco tem um limite. É preciso dimensionar esse número para que as requisições não fiquem esperando uma conexão livre.
 - **Réplicas de leitura**, que são cópias do banco usadas apenas para consultas. Elas tiram do banco principal o peso das leituras, deixando-o livre para as gravações.
-- **Crescimento do histórico de auditoria.** Como os registros devem ser guardados por 5 anos (Resolução CVM 30, art. 14), 100 mil decisões por dia representam cerca de 25 milhões de registros por ano. É necessário planejar o armazenamento e a forma de consultar esse volume, por exemplo separando os registros por período.
+- **Crescimento do histórico de auditoria.** Como os registros devem ser guardados por 5 anos (Resolução CVM 30, art. 14), 100 mil decisões por dia representam cerca de 25 milhões de registros por ano, ou mais de 120 milhões acumulados ao longo dos 5 anos. É necessário planejar o armazenamento e a forma de consultar esse volume, por exemplo separando os registros por período.
 
 **4. Serviços dos quais o motor depende**
 
@@ -35,7 +35,7 @@ O motor depende de outros sistemas para obter o perfil do cliente, a carteira e 
 
 **5. Separar a validação de compras do monitoramento diário das carteiras**
 
-A validação de uma compra precisa responder na hora, porque o cliente está esperando. Já o monitoramento do desenquadramento passivo recalcula todas as carteiras de uma vez, uma vez por dia. Se as duas atividades disputarem os mesmos recursos, o recálculo de todas as carteiras pode deixar as compras lentas. Por isso, o monitoramento deve rodar separadamente, com as carteiras colocadas em uma fila (uma lista de tarefas processadas em ordem) e calculadas por servidores dedicados a essa atividade, sem interferir na validação das ordens.
+A validação de uma compra precisa responder na hora, porque o cliente está esperando. Já o monitoramento do desenquadramento passivo recalcula todas as carteiras de uma só vez, diariamente. Se as duas atividades disputarem os mesmos recursos, o recálculo de todas as carteiras pode deixar as compras lentas. Por isso, o monitoramento deve rodar separadamente, com as carteiras colocadas em uma fila (uma lista de tarefas processadas em ordem) e calculadas por servidores dedicados a essa atividade, sem interferir na validação das ordens.
 
 **6. Testes de carga**
 
@@ -51,7 +51,7 @@ Se existe um único servidor processando as validações, qualquer falha nele in
 
 **1. Mais de uma cópia da aplicação, em locais diferentes**
 
-A aplicação deve rodar em pelo menos duas cópias, de preferência em locais físicos diferentes (por exemplo, em data centers diferentes). Assim, se um servidor ou até um local inteiro falhar, as outras cópias continuam atendendo. Como o motor não guarda informação entre validações, qualquer cópia pode atender qualquer requisição, o que torna essa redundância simples de implementar.
+A aplicação deve rodar em pelo menos duas cópias, de preferência em locais físicos diferentes (por exemplo, em outro data center). Assim, se um servidor ou até um local inteiro falhar, as outras cópias continuam atendendo. Como o motor não guarda informação entre validações, qualquer cópia pode atender qualquer requisição, o que torna essa redundância simples de implementar.
 
 **2. Balanceador de carga com verificação de saúde**
 
@@ -63,7 +63,7 @@ Ter várias cópias da aplicação não adianta se todas dependerem de um único
 
 **4. Fila para o processamento que pode esperar**
 
-O monitoramento passivo não precisa de resposta imediata. Se as carteiras a recalcular estiverem em uma fila, uma falha no processamento não faz nenhum trabalho se perder: as carteiras continuam na fila e são processadas assim que o serviço voltar.
+O monitoramento passivo não precisa de resposta imediata. Se as carteiras a recalcular estiverem em uma fila, uma falha no processamento não faz com que nenhum trabalho se perca: as carteiras continuam na fila e são processadas assim que o serviço voltar.
 
 **5. Comportamento seguro quando não houver como validar**
 
@@ -141,7 +141,7 @@ Por fim, cada alerta deve ser enviado para a equipe responsável e vir acompanha
 
 > Como você planejaria uma mudança de infraestrutura em ambiente produtivo, considerando documentação da alteração, avaliação de riscos, testes prévios, aprovação da mudança, comunicação aos envolvidos e plano de contingência?
 
-Para tornar o planejamento concreto, considere uma mudança relacionada ao Cenário 1: migrar o banco de dados do motor para um servidor com mais capacidade. Como o motor valida todas as compras dos clientes, uma falha nessa mudança pode impedir operações ou, no pior caso, deixar ordens sem validação. Por isso, a mudança segue etapas definidas antes de qualquer alteração ser feita. Essas etapas seguem as práticas de gestão de mudanças descritas no ITIL, um dos referenciais mais usados no mercado para a gestão de serviços de TI.
+Para tornar o planejamento concreto, considere uma mudança relacionada ao Cenário 1: migrar o banco de dados do motor para um servidor com mais capacidade. Como o motor valida todas as compras dos clientes, uma falha nessa mudança pode impedir operações ou, no pior caso, deixar ordens sem validação. Por isso, a mudança segue etapas definidas antes de qualquer alteração ser feita. Elas se baseiam nas práticas de gestão de mudanças descritas no ITIL, um dos referenciais mais usados no mercado para a gestão de serviços de TI.
 
 **1. Documentação da alteração**
 
@@ -149,7 +149,7 @@ A mudança é registrada em uma solicitação formal que descreve o que será al
 
 **2. Avaliação de riscos**
 
-Antes de executar, é preciso responder o que acontece se a mudança falhar, qual a chance de isso ocorrer e quais outros sistemas podem ser afetados. No exemplo, o impacto seria alto, porque sem banco de dados nenhuma ordem é validada. Essa avaliação define o nível de cuidado das etapas seguintes e o horário da execução. Uma mudança de alto impacto deve ser feita fora do horário em que o mercado está aberto, quando há poucas ou nenhuma ordem sendo enviada.
+Antes de executar, é preciso responder o que acontece se a mudança falhar, qual a chance de isso ocorrer e quais outros sistemas podem ser afetados. No exemplo, o impacto seria alto, porque sem banco de dados nenhuma ordem é validada. Essa avaliação define o nível de cuidado das etapas seguintes e o horário da execução. Uma mudança de alto impacto deve ser feita fora do horário em que o mercado está aberto, quando poucas ordens, ou nenhuma, estão sendo enviadas.
 
 **3. Testes prévios**
 
