@@ -9,7 +9,7 @@ Antes de qualquer nova compra, o motor responde a uma pergunta: se esta ordem fo
 3. Calcula os **limites do cliente** a partir do score máximo de risco do seu perfil.
 4. Compara o risco projetado com esses limites e **classifica a ordem** como Aprovado, Alerta ou Rejeitado, devolvendo a decisão junto com os valores que a justificam.
 
-![Fluxo do motor de suitability](./docs/img/fluxo-motor-suitability.svg)
+![Fluxo do motor de suitability](./img/fluxo-motor-suitability.svg)
 
 As funções do motor apenas recebem dados e devolvem uma decisão: elas não leem arquivos, não acessam banco de dados e não dependem de rede. Por isso, a mesma lógica pode ser usada pela interface de linha de comando (`main.py`), por uma API ou por um processo automático, como o proposto na Pergunta 2.
 
