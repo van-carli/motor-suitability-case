@@ -1,0 +1,5 @@
+{
+  "perfil": {"perfil": "Moderado", "score_max_risco": 2.5},
+  "carteira": [],
+  "ordem": {"ativo": "CDB XPTO", "risco": 1.2, "valor_ordem": 10000}
+}
