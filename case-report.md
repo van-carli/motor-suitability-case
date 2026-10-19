@@ -25,7 +25,7 @@ O enunciado deixa alguns pontos em aberto. A seguir estão as decisões tomadas 
 
 - **Risco entre o score e o limite de alerta:** Um risco projetado de 2,6, por exemplo, está acima do score de 2,5, mas abaixo de 2,75. Como a regra só prevê alerta acima de 110% do score, essa faixa é tratada como tolerância e a ordem é aprovada.
 
-- **Precisão dos cálculos:** Os cálculos usam o tipo `Decimal` em vez de `float`. O `float` representa os números em binário e gera pequenos erros em valores decimais, e perto de um limite esse erro pode mudar a decisão. Os testes incluem um caso em que o risco exato é 2,75 (aprovado), mas o cálculo em `float` resulta em 2,7500000000000004 e geraria um alerta indevido. Pelo mesmo motivo, a comparação com os limites usa o valor completo, e o arredondamento para duas casas decimais acontece apenas na resposta exibida.
+- **Precisão dos cálculos:** Os cálculos usam o tipo `Decimal` em vez de `float`. De acordo com a documentação oficial do Python, o `float` representa os números em binário, e a maioria dos valores decimais, como 0,1, não tem representação exata nessa base. Isso gera pequenos erros nas contas, e perto de um limite esse erro pode mudar a decisão. A mesma documentação recomenda o módulo `decimal` para aplicações que exigem representação decimal exata, como as contábeis. Os testes incluem um caso em que o risco exato é 2,75 (aprovado), mas o cálculo em `float` resulta em 2,7500000000000004 e geraria um alerta indevido. Pelo mesmo motivo, a comparação com os limites usa o valor completo, e o arredondamento para duas casas decimais acontece apenas na resposta exibida.
 
 - **Cliente sem carteira:** Um cliente novo ainda não tem ativos, então não existe risco atual a calcular (a fórmula dividiria por zero). Nesse caso, o risco atual é retornado como nulo e o risco projetado é o próprio risco do ativo que está sendo comprado.
 
@@ -39,7 +39,7 @@ Para o perfil Moderado do enunciado (score 2,5), essas decisões resultam em tr�
 
 > Se o cliente, ao receber o Alerta, insistir em prosseguir com a compra (o que é permitido pela CVM com um Termo de Ciência), quais são as implicações tecnológicas e de compliance que a Genial deve prever?
 
-Quando o motor emite um alerta, o cliente pode decidir seguir com a compra mesmo assim. A Resolução CVM 30 admite essa situação, mas com condições. Pelo art. 7, antes da primeira operação em uma categoria de ativo inadequada ao perfil, a instituição precisa alertar o cliente, indicando as causas da inadequação, e obter dele uma declaração expressa de que está ciente. Pelo art. 14, esses documentos e declarações devem ser guardados por no mínimo 5 anos.
+Quando o motor emite um alerta, o cliente pode decidir seguir com a compra mesmo assim. A Resolução CVM 30, que regula o dever das instituições de verificar se os produtos são adequados ao perfil do cliente, admite essa situação, mas com condições. De acordo com o seu art. 7, antes da primeira operação em uma categoria de ativo inadequada ao perfil, a instituição precisa alertar o cliente, indicando as causas da inadequação, e obter dele uma declaração expressa de que está ciente. O art. 14 determina ainda que esses documentos e declarações sejam guardados por no mínimo 5 anos.
 
 Isso significa que aceitar o termo não é apenas um botão na tela. Para a Genial, cada aceite cria três responsabilidades: garantir que o cliente foi bem informado antes de decidir, registrar essa decisão de forma confiável e conseguir comprová-la anos depois.
 
@@ -79,7 +79,7 @@ Esse histórico não pode ser editado nem apagado, nem mesmo por administradores
 
 **6. Guardar os registros pelo prazo legal e proteger o acesso a eles**
 
-Os termos e o histórico de decisões precisam ser mantidos por pelo menos 5 anos, conforme o art. 14. Como esses registros contêm dados pessoais e informações sobre o patrimônio dos clientes, o acesso deve ficar restrito às áreas que realmente precisam deles, como compliance e auditoria, e cada consulta deve ser registrada, em linha com a LGPD.
+Os termos e o histórico de decisões precisam ser mantidos por pelo menos 5 anos, conforme o art. 14. Como esses registros contêm dados pessoais e informações sobre o patrimônio dos clientes, o acesso deve ficar restrito às áreas que realmente precisam deles, como compliance e auditoria, e cada consulta deve ser registrada, em linha com a Lei Geral de Proteção de Dados (LGPD, Lei nº 13.709/2018).
 
 **7. Identificar qual versão da regra foi aplicada em cada decisão**
 
@@ -99,7 +99,7 @@ O termo de ciência existe para situações de exceção. Se um cliente assina t
 
 **3. Medir como a política está sendo aplicada**
 
-Relatórios periódicos com o número de alertas, de termos aceitos e recusados e de ordens rejeitadas, separados por perfil e por produto, mostram onde a política gera mais atrito. Se um produto específico concentra muitos alertas, por exemplo, pode ser necessário revisar a classificação de risco dele ou a forma como é oferecido aos clientes.
+Relatórios periódicos com o número de alertas, de termos aceitos e recusados e de ordens rejeitadas, separados por perfil e por produto, mostram em quais situações os clientes mais recebem alertas e rejeições. Se um produto específico concentra muitos alertas, por exemplo, pode ser necessário revisar a classificação de risco dele ou a forma como é oferecido aos clientes.
 
 **4. Supervisionar ordens feitas por meio de assessores**
 
@@ -116,7 +116,7 @@ Em resumo, aceitar o termo é uma decisão do cliente, mas cabe à Genial garant
 O motor foi pensado para ser executado antes de uma compra, mas a carteira de um cliente pode sair do perfil mesmo sem nenhuma nova operação. Isso acontece porque o risco da carteira é uma média ponderada pelo valor de cada ativo, e esses valores mudam todos os dias com o mercado. Quando essa mudança leva o risco da carteira para além dos limites do perfil, ocorre o desenquadramento passivo. Há dois motivos principais para isso:
 
 1. **Variação de preço dos ativos:** Quando um ativo de risco alto se valoriza, ele passa a representar uma parte maior da carteira e puxa a média para cima, mesmo que o cliente não tenha comprado nada.
-2. **Mudança na classificação de risco de um ativo:** O score de risco de um produto pode ser revisto, por exemplo, se a situação do emissor piorar. Nesse caso, todas as carteiras que têm esse ativo têm o risco alterado ao mesmo tempo.
+2. **Mudança na classificação de risco de um ativo:** O score de risco de um produto pode ser revisto, por exemplo, se a empresa ou instituição responsável pelo ativo passar por dificuldades financeiras. Nesse caso, todas as carteiras que têm esse ativo têm o risco alterado ao mesmo tempo.
 
 Para ilustrar o primeiro motivo, considere a carteira do enunciado: R$ 50.000 em CDB XPTO (risco 1,2) e R$ 10.000 em Ação ABC (risco 4,0), com risco atual de 1,67. Se a Ação ABC se valorizar até valer R$ 80.000, sem nenhuma compra, o risco da carteira passa a ser (1,2 × 50.000 + 4,0 × 80.000) / 130.000 ≈ 2,92. Esse valor está acima do limite de alerta de 2,75, e o cliente entrou em desenquadramento sem ter feito nada.
 
@@ -140,21 +140,21 @@ A tabela abaixo resume o que cada canal oferece, onde ele falha e, a partir diss
 
 | Canal | Pontos fortes | Limitações | Melhor uso |
 |---|---|---|---|
-| **App** (notificação e aviso na tela da carteira) | Chega ao cliente na hora, tem custo baixo e alcança toda a base. A notificação pode levar direto à tela da carteira, onde o cliente vê qual ativo causou o aumento do risco. | O cliente pode ter desativado as notificações ou não abrir o app com frequência, e o aviso pode se perder entre outras notificações. | Primeiro aviso, em qualquer nível de desenquadramento. |
+| **App** (notificação e aviso na tela da carteira) | Chega ao cliente na hora, tem custo baixo e alcança todos os clientes. A notificação pode levar direto à tela da carteira, onde o cliente vê qual ativo causou o aumento do risco. | O cliente pode ter desativado as notificações ou não abrir o app com frequência, e o aviso pode se perder entre outras notificações. | Primeiro aviso, em qualquer nível de desenquadramento. |
 | **E-mail** | Deixa um registro formal, que o cliente pode consultar depois e que serve como comprovante de que a comunicação foi feita. Comporta mais detalhes: composição da carteira, risco antes e depois da variação e opções disponíveis. | Costuma ser lido com atraso e pode ser filtrado como spam. | Complemento do aviso no app, com a explicação completa. |
-| **Assessor** | Uma conversa permite explicar o contexto, tirar dúvidas e ajudar o cliente a decidir se vale a pena rebalancear a carteira. É o canal com mais chance de o cliente realmente entender a situação. | Tem custo alto e não é viável para toda a base. Além disso, nem todo cliente tem assessor. | Situações mais graves, ou que continuam mesmo depois dos avisos automáticos. |
+| **Assessor** | Uma conversa permite explicar o contexto, tirar dúvidas e ajudar o cliente a decidir se vale a pena ajustar a carteira, mudando quanto está investido em cada ativo. É o canal com mais chance de o cliente realmente entender a situação. | Tem custo alto e não é viável para todos os clientes. Além disso, nem todo cliente tem assessor. | Situações mais graves, ou que continuam mesmo depois dos avisos automáticos. |
 
 Comparando os três, o app e o e-mail se complementam: o app garante rapidez, e o e-mail garante o registro e o nível de detalhe. O assessor é o canal mais eficaz para que o cliente entenda o que está acontecendo, mas, por ser caro, faz mais sentido como reforço nos casos em que os avisos automáticos não são suficientes.
 
 Essa combinação pode ser organizada como um escalonamento por severidade. Escalonar significa usar mais canais, e canais mais diretos, à medida que a situação fica mais grave. O objetivo é equilibrar alcance e custo: situações leves recebem avisos automáticos, e o contato humano fica reservado para quando ele faz diferença. Os níveis seriam três:
 
-- **Quando a carteira entra na faixa de Alerta:** O risco passou da tolerância do perfil, mas ainda está na faixa intermediária. O cliente recebe uma notificação no app e um e-mail explicando o que mudou. Não há urgência, e a decisão de rebalancear ou não é dele.
+- **Quando a carteira entra na faixa de Alerta:** O risco passou da tolerância do perfil, mas ainda está na faixa intermediária. O cliente recebe uma notificação no app e um e-mail explicando o que mudou. Não há urgência, e a decisão de ajustar ou não a carteira é dele.
 
 - **Quando a carteira entra na faixa de Rejeitado:** O risco está bem acima do perfil, no nível em que uma nova compra seria bloqueada. Além do app e do e-mail, o assessor do cliente entra em contato para explicar a situação e discutir as opções. Para clientes sem assessor, esse contato pode ser feito por um canal de atendimento.
 
 - **Quando o Alerta persiste por muito tempo:** Se a carteira continua em Alerta por um período definido pela política da Genial e o cliente não reagiu aos avisos automáticos, é sinal de que eles não foram suficientes. Nesse caso, o contato passa a ser feito pelo assessor, como no nível anterior.
 
-Em qualquer canal, a mensagem deve ser clara e sem termos técnicos: qual ativo causou o aumento, como está o risco em relação ao limite do perfil e quais são as opções do cliente (rebalancear a carteira, revisar o perfil ou manter a posição), sem pressioná-lo a vender. Cada notificação enviada é registrada no mesmo histórico de auditoria descrito na Pergunta 1, para que a Genial consiga comprovar que o cliente foi informado.
+Em qualquer canal, a mensagem deve ser clara e sem termos técnicos: qual ativo causou o aumento, como está o risco em relação ao limite do perfil e quais são as opções do cliente (ajustar a carteira, revisar o perfil ou manter os investimentos como estão), sem pressioná-lo a vender. Cada notificação enviada é registrada no mesmo histórico de auditoria descrito na Pergunta 1, para que a Genial consiga comprovar que o cliente foi informado.
 
 Dessa forma, o mesmo motor que valida as compras passa a acompanhar a carteira continuamente, e o cliente é avisado na medida certa: com frequência suficiente para não ser pego de surpresa, mas sem tantas notificações a ponto de deixar de prestar atenção nelas.
 
@@ -162,4 +162,6 @@ Dessa forma, o mesmo motor que valida as compras passa a acompanhar a carteira c
 
 ## Referências
 
-- Comissão de Valores Mobiliários. Resolução CVM nº 30, de 11 de maio de 2021, arts. 6, 7 e 14.
+- COMISSÃO DE VALORES MOBILIÁRIOS. **Resolução CVM nº 30, de 11 de maio de 2021**. Dispõe sobre o dever de verificação da adequação dos produtos, serviços e operações ao perfil do cliente. Texto consolidado, arts. 6, 7 e 14. Disponível em: https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol030consolid.pdf
+- BRASIL. **Lei nº 13.709, de 14 de agosto de 2018**. Lei Geral de Proteção de Dados Pessoais (LGPD). Disponível em: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm
+- PYTHON SOFTWARE FOUNDATION. **Floating-Point Arithmetic: Issues and Limitations**. Documentação oficial do Python 3. Disponível em: https://docs.python.org/3/tutorial/floatingpoint.html
